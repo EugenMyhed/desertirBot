@@ -1,23 +1,15 @@
 'use strict'
 
-import instrumentHolder from './instrumentHolder'
-import logger from './logger';
-class Scenarion extends instrumentHolder {
+import logger from './logger'
+class Scenarion {
     constructor(name, ctx) {
         super()
         this.name = name
     }
-    launchStep(ctx) {
+    launchScenario(ctx) {
         ctx.session[this.name] = ctx.session[this.name] || 0
         this.step = ctx.session[this.name]
     }
-    setSteps(steps) {
-        this.steps = steps
-    }
-    addStep(step) {
-        this.steps.push(step)
-    }
-    //---
     makeStep(dataChannel, ctx, next, step) {
         this.step = step
         ctx.session[this.name] = step
@@ -26,7 +18,6 @@ class Scenarion extends instrumentHolder {
     nextStep(ctx) {
         this.step++;
         ctx.session[this.name] = this.step
-        // logger.debug(`Session scenario: ${ctx.session[this.name]} and ${this.step}`)
         if (this.step == this.steps.length)
             this.killScenario(ctx)
     }
@@ -34,7 +25,7 @@ class Scenarion extends instrumentHolder {
         ctx.session.scenario = null
     }
     start(dataChannel, ctx, next) {
-        logger.info(`${this.name} started!!!!`)
+        // logger.info(`${this.name} started!!!!`)
         this.makeStep(dataChannel, ctx, next, 0)
     }
     async control(dataChannel, ctx, next) {

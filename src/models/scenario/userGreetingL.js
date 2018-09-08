@@ -1,20 +1,19 @@
 'use strict'
+
 import Markup from 'telegraf/markup'
 import Extra from 'telegraf/extra'
 
-import Text from './messageText'
-
-class Keyboard {
-    //#bottom
+class View {
+    get greetingText() {
+        return 'Привет новый пользователь)'
+    }
     get mainKeyboard() {
         return Markup.keyboard([
-                [Text.mainKeyboard]
+                ['Добавить канал']
             ])
             .oneTime()
             .resize()
             .extra()
     }
-    //#after message
-    //#inline in query
 }
-export default new Keyboard()
+export default new View()

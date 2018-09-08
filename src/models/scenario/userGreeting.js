@@ -6,32 +6,21 @@ import keyboard from '../botLook/keyboard'
 import Text from '../botLook/messageText'
 
 import Scenario from '../scenarioFather'
-//class construction
-const userGreeting = new Scenario('userGreeting')
 
-const lazyInterrupts = {
-    'all': interuption
-}
+const userGreeting = new Scenario('userGreeting')
+import view from './userGreetingL'
 
 userGreeting.setSteps([{
     'reaction': reaction1,
     'dataChannel': ['start'],
-    'interrupts': lazyInterrupts
+    'interrupts': { 'all': interruption }
 }])
-//--------------------
-//function declaration
 
 async function reaction1(ctx) {
-    return new Promise(async (res, rej) => {
-        ctx.reply(Text.greetingInstruction1, keyboard.createWall)
-        //ctx.reply(Text.greetingInstruction2, keyboard.about)
-        res()
-    })
+    await ctx.reply(view.greetingText, view.mainKeyboard)
 }
 
 async function interuption(ctx) {
-    return new Promise(async (res, rej) => {
-        res()
-    })
+    logger.error(`Interruption happened`)
 }
 export default userGreeting
