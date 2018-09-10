@@ -51,9 +51,9 @@ class Scenarion {
             await this.killScenario(ctx)
     }
     killScenario(ctx) {
-        logger.debug(`Scenario killing`)
         ctx.session.scenario = 'empty'
         ctx.session[this.name] = 0
+        logger.debug(`Scenario killed`)
     }
     start(dataChannel, ctx, next) {
         this.makeStep(dataChannel, ctx, next, 0)

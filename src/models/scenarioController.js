@@ -30,7 +30,9 @@ export default function (bot) {
     })
 }
 async function switchAction(channel, ctx, next) {
+    // logger.info(`hhh->${JSON.stringify(ctx.session)}`)
     if (!preSession) await makePreSession(ctx)
+    // logger.info(`hhh->${JSON.stringify(ctx.session)}`)
     if (!await distributeScenario(channel, ctx, next)) {
         await launcher(channel, ctx, next)
         logger.info(`launcher`)
@@ -48,13 +50,13 @@ function distributeScenario(channel, ctx, next) {
 }
 
 function makePreSession(ctx) {
-    logger.info(ctx.session.scenario)
+    // logger.info(ctx.session.scenario)
     preSession = true
     ctx.session.scenario = ctx.session.scenario || 'empty'
     componentList.forEach(component => {
         component.launchSession(ctx)
     })
-    logger.info(ctx.session.scenario)
+    // logger.info(ctx.session.scenario)
     logger.debug(`Pre session made`)
 }
 
