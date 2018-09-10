@@ -38,9 +38,12 @@ async function switchAction(channel, ctx, next) {
 }
 
 function distributeScenario(channel, ctx, next) {
-    logger.info(`d->${ctx.session.scenario}`)
-    const component = componentList.find(async component => { return component.name == ctx.session.scenario })
-    logger.info(`n-> ${component.name}`)
+    // logger.info(`d->${ctx.session.scenario}`)
+    const component = componentList.find(component => {
+        // logger.info(`${component.getName == ctx.session.scenario}`)
+        return (component.getName === ctx.session.scenario)
+    })
+    // logger.info(`n-> ${component.name}`)
     return component ? component.control(channel, ctx, next) : component
 }
 

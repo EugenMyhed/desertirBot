@@ -45,15 +45,15 @@ class Scenarion {
     }
     async nextStep(ctx) {
         ctx.session[this.name] = ctx.session[this.name] + 1
-        logger.debug(`Step made`)
+        // logger.debug(`Step made`)
         // logger.debug(`${ctx.session[this.name]}`)
-        // if (ctx.session[this.name] == this.steps.length)
-        //     await this.killScenario(ctx)
+        if (ctx.session[this.name] == this.steps.length)
+            await this.killScenario(ctx)
     }
     killScenario(ctx) {
-        // logger.debug(`Scenario killing`)
+        logger.debug(`Scenario killing`)
         ctx.session.scenario = 'empty'
-        ctx.session[this.name] = 3
+        ctx.session[this.name] = 0
     }
     start(dataChannel, ctx, next) {
         this.makeStep(dataChannel, ctx, next, 0)
