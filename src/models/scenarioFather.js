@@ -3,63 +3,60 @@
 import logger from './logger'
 class Scenarion {
     constructor(name, ctx) {
-        super()
+        // super()
         this.name = name
     }
-    launchScenario(ctx) {
+    get getName() {
+        return this.name
+    }
+    setSteps(steps) {
+        this.steps = steps
+    }
+    launchSession(ctx) {
         ctx.session[this.name] = ctx.session[this.name] || 0
-        this.step = ctx.session[this.name]
+    }
+    async control(dataChannel, ctx, next) {
+        if (!dataChannel || !ctx || !next)
+            throw new Error(`Scenario Error: options do not complete`)
+        ctx.session.scenario = this.name
+        logger.debug(`Session scenario: ${ctx.session.scenario}`)
+        //logger.debug(`${dataChannel}`)
+        //logger.debug(`${this.name}`)
+        const current_step = this.steps[ctx.session[this.name]]
+        logger.debug(`Current step: ${ctx.session[this.name]}`)
+        let acceptedChannel = current_step.dataChannel.find(channel => { return channel == dataChannel })
+        if (acceptedChannel) {
+            await current_step.reaction(ctx, next)
+            await this.nextStep(ctx)
+            logger.debug(`Reaction Made`)
+            return true
+        } else {
+            if (current_step.interrupts[dataChannel])
+                await current_step.interrupts[dataChannel](ctx, next)
+            else if (current_step.interrupts.all)
+                await current_step.interrupts.all(ctx, next)
+            logger.debug(`Interruption Made`)
+            return true
+        }
     }
     makeStep(dataChannel, ctx, next, step) {
-        this.step = step
         ctx.session[this.name] = step
         this.control(dataChannel, ctx, next)
     }
-    nextStep(ctx) {
-        this.step++;
-        ctx.session[this.name] = this.step
-        if (this.step == this.steps.length)
-            this.killScenario(ctx)
+    async nextStep(ctx) {
+        ctx.session[this.name] = ctx.session[this.name] + 1
+        logger.debug(`Step made`)
+        // logger.debug(`${ctx.session[this.name]}`)
+        // if (ctx.session[this.name] == this.steps.length)
+        //     await this.killScenario(ctx)
     }
     killScenario(ctx) {
-        ctx.session.scenario = null
+        // logger.debug(`Scenario killing`)
+        ctx.session.scenario = 'empty'
+        ctx.session[this.name] = 3
     }
     start(dataChannel, ctx, next) {
-        // logger.info(`${this.name} started!!!!`)
         this.makeStep(dataChannel, ctx, next, 0)
-    }
-    async control(dataChannel, ctx, next) {
-        return new Promise(async (res, rej) => {
-            if (!dataChannel || !ctx || !next)
-                logger.error(`Scenario Error: options do not complete`)
-            ctx.session.scenario = this.name
-            logger.debug(`Session scenario: ${ctx.session.scenario}`)
-            //logger.debug(`${dataChannel}`)
-            //logger.debug(`${this.name}`)
-            let properReaction = null
-            const current_step = this.steps[this.step]
-            //logger.debug(`Current step: ${this.step}`)
-            current_step.dataChannel.forEach(channel => {
-                if (channel == dataChannel)
-                    properReaction = current_step.reaction
-            })
-            // logger.debug(typeof properReaction)
-            if (properReaction) {
-                logger.debug(`Find reaction`)
-                await properReaction(ctx, next)
-                //logger.debug(`Reacted`)
-                this.nextStep(ctx)
-                //logger.debug(`stepted`)
-            } else {
-                logger.debug(`Find interruption`)
-                let properInteruuption = null
-                if (current_step.interrupts[dataChannel]) {
-                    await current_step.interrupts[dataChannel](ctx, next)
-                } else if (current_step.interrupts.all)
-                    await current_step.interrupts.all(ctx, next)
-            }
-            res()
-        })
     }
 }
 export default Scenarion

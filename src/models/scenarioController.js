@@ -2,43 +2,57 @@
 
 import logger from './logger'
 
-//-------------
-//Scenario zone
-import userGreeting_SC from './scenario/userGreeting'
-
-import { getUser, setUser, setChannel } from './db/dbController'
+import componentList, { findComponent } from './scenario/scenarioList'
+import launcher from './launcher'
 
 export default function (bot) {
     bot.start(async (ctx, next) => {
-        await distributeScenario('start', ctx, next)
+        switchAction('start', ctx, next)
     })
-
+    bot.command(async (ctx, next) => {
+        switchAction('command', ctx, next)
+    })
     bot.on('callback_query', async function (ctx, next) {
-        await distributeScenario('callback_query', ctx, next)
+        switchAction('callback_query', ctx, next)
     })
     bot.on('text', async (ctx, next) => {
-        await distributeScenario('text', ctx, next)
+        switchAction('text', ctx, next)
     })
     bot.on('message', async (ctx, next) => {
-        await distributeScenario('message', ctx, next)
+        switchAction('message', ctx, next)
     })
 
     bot.on('channel_post', async (ctx, next) => {
-        await distributeScenario('message', ctx, next)
+        switchAction('channel_post', ctx, next)
     })
     bot.on('inline_query', async (ctx, next) => {
-        await distributeScenario('message', ctx, next)
+        switchAction('inline_query', ctx, next)
     })
 }
-async function distributeScenario(dataChannel, ctx, next) {
-    return new Promise(async (res, rej) => {
-        if (!ctx.session.preSession) await preSession(ctx)
-        logger.debug(`inDistributer ${ctx.session.scenario}`)
-        switch (ctx.session.scenario) {
-        case 'userGreeting':
-            await userGreeting_SC.control(dataChannel, ctx, next)
-            res(true)
-            break
-        }
-    })
+async function switchAction(channel, ctx, next) {
+    if (!preSession) await makePreSession(ctx)
+    if (!await distributeScenario(channel, ctx, next)) {
+        await launcher(channel, ctx, next)
+        logger.info(`launcher`)
+    }
 }
+
+function distributeScenario(channel, ctx, next) {
+    logger.info(`d->${ctx.session.scenario}`)
+    const component = componentList.find(async component => { return component.name == ctx.session.scenario })
+    logger.info(`n-> ${component.name}`)
+    return component ? component.control(channel, ctx, next) : component
+}
+
+function makePreSession(ctx) {
+    logger.info(ctx.session.scenario)
+    preSession = true
+    ctx.session.scenario = ctx.session.scenario || 'empty'
+    componentList.forEach(component => {
+        component.launchSession(ctx)
+    })
+    logger.info(ctx.session.scenario)
+    logger.debug(`Pre session made`)
+}
+
+let preSession = false

@@ -1,0 +1,11 @@
+{
+  "sessions": [
+    {
+      "id": "222420524:222420524",
+      "data": {
+        "scenario": "userGreeting",
+        "userGreeting": 0
+      }
+    }
+  ]
+}

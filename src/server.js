@@ -13,12 +13,12 @@ require('babel-polyfill')
 
 const bot = new Telegraf(TOKEN, { channelMode: true })
 
-bot.use((new LocalSession({
-        database: 'session.json',
-        storage: LocalSession.storageFileAsync
-    }))
-    .middleware())
-
+// bot.use((new LocalSession({
+//         database: 'session.json',
+//         storage: LocalSession.storageFileAsync
+//     }))
+//     .middleware())
+bot.use(session())
 bot.telegram.getMe()
     .then(botInformation => {
         bot.options.botUsername = botInformation.username

@@ -2,25 +2,23 @@
 
 import logger from '../logger'
 
-import keyboard from '../botLook/keyboard'
-import Text from '../botLook/messageText'
-
 import Scenario from '../scenarioFather'
 
-const userGreeting = new Scenario('userGreeting')
 import view from './userGreetingL'
+const userGreeting = new Scenario('userGreeting')
 
 userGreeting.setSteps([{
-    'reaction': reaction1,
+    'reaction': reaction,
     'dataChannel': ['start'],
     'interrupts': { 'all': interruption }
 }])
 
-async function reaction1(ctx) {
+async function reaction(ctx) {
     await ctx.reply(view.greetingText, view.mainKeyboard)
 }
 
-async function interuption(ctx) {
+async function interruption(ctx) {
     logger.error(`Interruption happened`)
 }
+
 export default userGreeting
